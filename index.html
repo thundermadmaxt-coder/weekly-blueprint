@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#111827" />
+<title>Weekly Blueprint Check-In</title>
+<style>
+  :root{
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --accent:#4b2e63;
+    --accent-soft:#f2edf6;
+    --good:#2f6b4f;
+    --warn:#9a6b1f;
+    --bad:#9b3b3b;
+    --shadow:0 6px 18px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:calc(16px + env(safe-area-inset-top)) 14px calc(34px + env(safe-area-inset-bottom));
+  }
+  header{
+    padding:8px 2px 14px;
+  }
+  .kicker{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    color:var(--accent);
+    text-transform:uppercase;
+  }
+  h1{
+    font-size:28px;
+    line-height:1.08;
+    margin:6px 0 8px;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.45;
+  }
+  .quote{
+    margin:14px 0 2px;
+    padding:12px 14px;
+    border-left:4px solid var(--accent);
+    background:var(--accent-soft);
+    border-radius:10px;
+    font-weight:700;
+    color:var(--accent);
+  }
+  .status-card{
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:16px;
+    margin:14px 0;
+    position:sticky;
+    top:8px;
+    z-index:5;
+  }
+  .status-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .score-big{
+    font-size:34px;
+    font-weight:800;
+    letter-spacing:-.03em;
+  }
+  .verdict{
+    font-size:15px;
+    font-weight:800;
+    padding:8px 10px;
+    border-radius:999px;
+    background:#eef2f7;
+    white-space:nowrap;
+  }
+  .progress{
+    height:9px;
+    background:#eceff3;
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:12px;
+  }
+  .bar{
+    height:100%;
+    width:0%;
+    background:var(--accent);
+    transition:width .2s ease;
+  }
+  .weekline{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  section{
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:15px;
+    margin:12px 0;
+  }
+  section h2{
+    font-size:18px;
+    margin:0 0 4px;
+  }
+  .section-note{
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:10px;
+  }
+  .check{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:10px 0;
+    border-top:1px solid var(--line);
+  }
+  .check:first-of-type{border-top:0}
+  input[type="checkbox"]{
+    width:22px;
+    height:22px;
+    margin-top:1px;
+    accent-color:var(--accent);
+    flex:0 0 auto;
+  }
+  label{
+    font-size:14px;
+    line-height:1.4;
+  }
+  textarea,input[type="text"]{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px 12px;
+    font:inherit;
+    background:#fff;
+    color:var(--text);
+    outline:none;
+  }
+  textarea:focus,input[type="text"]:focus{
+    border-color:#9f86b1;
+    box-shadow:0 0 0 3px rgba(75,46,99,.08);
+  }
+  textarea{min-height:82px; resize:vertical}
+  .field{margin-top:11px}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:14px 0;
+  }
+  button{
+    border:0;
+    border-radius:12px;
+    padding:12px 14px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .primary{background:var(--accent);color:#fff}
+  .secondary{background:#ece8ef;color:var(--accent)}
+  .danger{background:#f6eaea;color:var(--bad)}
+  .history-list{
+    display:grid;
+    gap:8px;
+  }
+  .hist{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 11px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+  }
+  .hist small{display:block;color:var(--muted);margin-top:2px}
+  .hist-score{font-weight:800}
+  .legend{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-top:8px;
+  }
+  .legend div{
+    border-radius:10px;
+    padding:9px;
+    font-size:11px;
+    text-align:center;
+    background:#f3f4f6;
+  }
+  .footer-card{
+    text-align:center;
+    margin-top:16px;
+    padding:16px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.5;
+  }
+  .footer-card strong{
+    display:block;
+    color:var(--accent);
+    font-size:15px;
+    margin-bottom:5px;
+  }
+  .tiny{font-size:11px;color:var(--muted)}
+  .section-score{
+    float:right;
+    font-size:12px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  @media (max-width:520px){
+    h1{font-size:25px}
+    .actions{grid-template-columns:1fr}
+    .legend{grid-template-columns:1fr 1fr}
+    .status-card{top:4px}
+  }
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Blueprint">
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Personal Blueprint</div>
+    <h1>Weekly Check-In</h1>
+    <div class="subtitle">A simple weekly reflection to protect the architecture of the next phase and stay focused on what matters.</div>
+    <div class="quote">Protect the architecture of the next phase; be flexible on the furniture around it.</div>
+  </header>
+
+  <div class="status-card">
+    <div class="status-row">
+      <div>
+        <div class="tiny">THIS WEEK</div>
+        <div class="score-big"><span id="score">0</span>/35</div>
+      </div>
+      <div id="verdict" class="verdict">RESET</div>
+    </div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <div id="weekline" class="weekline"></div>
+  </div>
+
+  <form id="checkForm"></form>
+
+  <section>
+    <h2>Weekly Reflection</h2>
+    <div class="section-note">Keep it short. One clear sentence is enough.</div>
+
+    <div class="field">
+      <label for="continue">CONTINUE — What worked and should stay?</label>
+      <textarea id="continue"></textarea>
+    </div>
+    <div class="field">
+      <label for="change">CHANGE — What should be adjusted?</label>
+      <textarea id="change"></textarea>
+    </div>
+    <div class="field">
+      <label for="stop">STOP — What is consuming capacity without enough value?</label>
+      <textarea id="stop"></textarea>
+    </div>
+    <div class="field">
+      <label for="priority">ONE PRIORITY FOR NEXT WEEK</label>
+      <input id="priority" type="text" placeholder="If I improve only one thing..." />
+    </div>
+  </section>
+
+  <section>
+    <h2>Long View</h2>
+    <div class="check"><input type="checkbox" id="long1"><label for="long1"><strong>2026 — Learn & Build:</strong> Am I increasing the capability required for independence?</label></div>
+    <div class="check"><input type="checkbox" id="long2"><label for="long2"><strong>2027 — Stabilise:</strong> Am I turning good practices into normal life?</label></div>
+    <div class="check"><input type="checkbox" id="long3"><label for="long3"><strong>Gui Chou — Steward & Simplify:</strong> Is what I am building likely to require less effort from me in the future?</label></div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" id="saveBtn" type="button">Save This Week</button>
+    <button class="secondary" id="newBtn" type="button">Start New Week</button>
+  </div>
+
+  <section>
+    <h2>History</h2>
+    <div class="section-note">Stored only in this browser on this device.</div>
+    <div id="history" class="history-list"></div>
+    <div class="actions" style="margin-bottom:0">
+      <button class="danger" id="clearBtn" type="button">Clear History</button>
+      <button class="secondary" id="exportBtn" type="button">Export Backup</button>
+    </div>
+  </section>
+
+  <div class="legend">
+    <div><strong>30–35</strong><br>On Track</div>
+    <div><strong>24–29</strong><br>Generally On Track</div>
+    <div><strong>18–23</strong><br>Drifting</div>
+    <div><strong>&lt;18</strong><br>Reset</div>
+  </div>
+
+  <div class="footer-card">
+    <strong>Protect health. Preserve curiosity. Maintain judgement.</strong>
+    Reduce unnecessary friction.<br><br>
+    Capability up. Judgement up. Unnecessary activity down.
+  </div>
+</div>
+
+<script>
+const sections = [
+  {
+    title:"1. Health — Layer 0",
+    note:"Protect the physical platform that supports everything else.",
+    items:[
+      "Was I generally in bed around 11 pm?",
+      "Did I maintain my morning walk most days?",
+      "Did I include some mobility / Tai Chi / recovery work?",
+      "Did I protect sleep and recovery instead of sacrificing them for work, markets or screens?",
+      "Do I feel physically better, stable or at least not depleted compared with last week?"
+    ]
+  },
+  {
+    title:"2. Learning — Input with Purpose",
+    note:"More information is not the same as better understanding.",
+    items:[
+      "Did I learn something genuinely useful this week?",
+      "Did AI accelerate my understanding rather than simply increase information consumption?",
+      "Did I distinguish useful signal from interesting noise?",
+      "Did I spend enough time thinking and synthesising instead of continuously consuming?",
+      "Can I explain one important thing more clearly than I could one week ago?"
+    ]
+  },
+  {
+    title:"3. Creator — Synthesis & Output",
+    note:"Turn input into something usable.",
+    items:[
+      "Did I turn learning into a framework, note, thesis, model or decision?",
+      "Did I connect ideas across different sources instead of following one source blindly?",
+      "Did I improve an existing personal system or process?",
+      "Did I create something reusable rather than repeatedly solving the same problem?",
+      "Did I stop when further work had diminishing value?"
+    ]
+  },
+  {
+    title:"4. Core 3 — Commercial / Solution / Deployment",
+    note:"Opportunity → understanding → execution → review.",
+    items:[
+      "Commercial: Did I ask whether this was worth my capital, time or attention?",
+      "Solution: Did I understand the problem before acting?",
+      "Solution: Did I challenge my assumptions and seek contrary evidence?",
+      "Deployment: Were actions deliberate rather than reactive?",
+      "Review: Did I review important decisions and capture what I learned?"
+    ]
+  },
+  {
+    title:"5. Capital — Self-Support without Over-Activity",
+    note:"Good capital decisions do not require constant activity.",
+    items:[
+      "Did I make decisions based on evidence rather than stimulation or FOMO?",
+      "Did I avoid unnecessary trades or interventions?",
+      "Did I protect capital when there was no clear edge?",
+      "Did I distinguish investing from trading clearly?",
+      "Is my system becoming easier to operate rather than more complicated?"
+    ]
+  },
+  {
+    title:"6. Stress — Chosen, Recoverable, Useful",
+    note:"Challenge is useful when recovery remains intact.",
+    items:[
+      "Was most of this week's stress chosen rather than imposed?",
+      "Could I disengage after demanding work?",
+      "Did I avoid recreating corporate-style continuous urgency?",
+      "When something changed unexpectedly, did I respond with adapt → learn → improve rather than resistance?",
+      "Did challenge produce growth rather than chronic depletion?"
+    ]
+  },
+  {
+    title:"7. Autonomy & Relationships",
+    note:"Protect the architecture; stay flexible on low-value detail.",
+    items:[
+      "Did I protect the few things that are genuinely important to my next phase?",
+      "Was I flexible on low-value preferences and details?",
+      "Did I avoid wasting energy trying to win unnecessary battles?",
+      "Did I maintain independence without isolating myself?",
+      "Did home feel sufficiently like a place of recovery?"
+    ]
+  }
+];
+
+const form = document.getElementById("checkForm");
+let idx = 0;
+
+sections.forEach((s, si) => {
+  const sec = document.createElement("section");
+  sec.innerHTML = `<h2>${s.title}<span id="secscore-${si}" class="section-score">0/5</span></h2><div class="section-note">${s.note}</div>`;
+  s.items.forEach((item, ii) => {
+    const id = `q${idx++}`;
+    const row = document.createElement("div");
+    row.className = "check";
+    row.innerHTML = `<input type="checkbox" id="${id}" data-section="${si}"><label for="${id}">${item}</label>`;
+    sec.appendChild(row);
+  });
+  form.appendChild(sec);
+});
+
+const TOTAL = idx;
+const STORAGE_KEY = "weeklyBlueprintHistoryV1";
+const DRAFT_KEY = "weeklyBlueprintDraftV1";
+
+function weekLabel(d=new Date()){
+  const start = new Date(d);
+  const day = (start.getDay()+6)%7;
+  start.setDate(start.getDate()-day);
+  const end = new Date(start);
+  end.setDate(end.getDate()+6);
+  const fmt = x => x.toLocaleDateString(undefined,{day:"numeric",month:"short"});
+  return `${fmt(start)} – ${fmt(end)} ${end.getFullYear()}`;
+}
+
+function compute(){
+  const checks = [...document.querySelectorAll('#checkForm input[type="checkbox"]')];
+  const score = checks.filter(c=>c.checked).length;
+  document.getElementById("score").textContent = score;
+  document.getElementById("bar").style.width = `${(score/TOTAL)*100}%`;
+
+  let label, color, bg;
+  if(score>=30){label="ON TRACK";color="#2f6b4f";bg="#e8f3ed";}
+  else if(score>=24){label="GENERALLY ON TRACK";color="#77601d";bg="#f5f0df";}
+  else if(score>=18){label="DRIFTING";color="#9a6b1f";bg="#f8edda";}
+  else{label="RESET";color="#9b3b3b";bg="#f6eaea";}
+  const v = document.getElementById("verdict");
+  v.textContent = label;
+  v.style.color = color;
+  v.style.background = bg;
+
+  sections.forEach((_,si)=>{
+    const n=[...document.querySelectorAll(`input[data-section="${si}"]`)].filter(c=>c.checked).length;
+    document.getElementById(`secscore-${si}`).textContent=`${n}/5`;
+  });
+  saveDraft();
+}
+
+function getState(){
+  return {
+    id: Date.now(),
+    week: weekLabel(),
+    date: new Date().toISOString(),
+    answers:[...document.querySelectorAll('#checkForm input[type="checkbox"]')].map(c=>c.checked),
+    continue:document.getElementById("continue").value,
+    change:document.getElementById("change").value,
+    stop:document.getElementById("stop").value,
+    priority:document.getElementById("priority").value,
+    long:[
+      document.getElementById("long1").checked,
+      document.getElementById("long2").checked,
+      document.getElementById("long3").checked
+    ]
+  };
+}
+
+function applyState(s){
+  const boxes=[...document.querySelectorAll('#checkForm input[type="checkbox"]')];
+  boxes.forEach((b,i)=>b.checked=!!(s.answers && s.answers[i]));
+  document.getElementById("continue").value=s.continue||"";
+  document.getElementById("change").value=s.change||"";
+  document.getElementById("stop").value=s.stop||"";
+  document.getElementById("priority").value=s.priority||"";
+  ["long1","long2","long3"].forEach((id,i)=>document.getElementById(id).checked=!!(s.long&&s.long[i]));
+  compute();
+}
+
+function saveDraft(){
+  const s=getState();
+  localStorage.setItem(DRAFT_KEY,JSON.stringify(s));
+}
+
+function saveWeek(){
+  const s=getState();
+  const history=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  const existing=history.findIndex(x=>x.week===s.week);
+  if(existing>=0) history[existing]=s;
+  else history.unshift(s);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(history));
+  localStorage.setItem(DRAFT_KEY,JSON.stringify(s));
+  renderHistory();
+  alert("Weekly check-in saved.");
+}
+
+function newWeek(){
+  if(!confirm("Start a fresh weekly check-in? Your saved history will remain.")) return;
+  const blank={answers:Array(TOTAL).fill(false),continue:"",change:"",stop:"",priority:"",long:[false,false,false]};
+  applyState(blank);
+  localStorage.removeItem(DRAFT_KEY);
+}
+
+function renderHistory(){
+  const root=document.getElementById("history");
+  const history=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  root.innerHTML="";
+  if(!history.length){
+    root.innerHTML='<div class="tiny">No saved weeks yet.</div>';
+    return;
+  }
+  history.slice(0,12).forEach(h=>{
+    const score=(h.answers||[]).filter(Boolean).length;
+    let label=score>=30?"On Track":score>=24?"Generally On Track":score>=18?"Drifting":"Reset";
+    const div=document.createElement("div");
+    div.className="hist";
+    div.innerHTML=`<div><strong>${h.week}</strong><small>${label}${h.priority ? " · Next: "+escapeHtml(h.priority) : ""}</small></div><div class="hist-score">${score}/35</div>`;
+    div.addEventListener("click",()=>applyState(h));
+    root.appendChild(div);
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+function clearHistory(){
+  if(confirm("Clear all saved weekly history from this browser?")){
+    localStorage.removeItem(STORAGE_KEY);
+    renderHistory();
+  }
+}
+
+function exportBackup(){
+  const data={
+    exportedAt:new Date().toISOString(),
+    history:JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"),
+    draft:JSON.parse(localStorage.getItem(DRAFT_KEY)||"null")
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="weekly-blueprint-backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById("weekline").textContent=weekLabel();
+document.addEventListener("change",compute);
+document.addEventListener("input",saveDraft);
+document.getElementById("saveBtn").addEventListener("click",saveWeek);
+document.getElementById("newBtn").addEventListener("click",newWeek);
+document.getElementById("clearBtn").addEventListener("click",clearHistory);
+document.getElementById("exportBtn").addEventListener("click",exportBackup);
+
+const draft=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");
+if(draft) applyState(draft); else compute();
+renderHistory();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
+</script>
+
+</body>
+</html>
