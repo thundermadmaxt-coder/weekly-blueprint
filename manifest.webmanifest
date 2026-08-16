@@ -2,20 +2,20 @@
   "name": "Weekly Blueprint Check-In",
   "short_name": "Blueprint",
   "description": "Weekly reflection for health, learning, judgement, capital discipline and sustainable independence.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/weekly-blueprint/",
+  "scope": "/weekly-blueprint/",
   "display": "standalone",
   "background_color": "#f7f7f8",
   "theme_color": "#111827",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/weekly-blueprint/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/weekly-blueprint/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
